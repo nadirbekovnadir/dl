@@ -1,0 +1,13 @@
+NUM_CLASSES = 10
+
+DATA_DIR = "./cifar-10/.data"
+NUM_WORKERS = 8
+
+ACCELERATOR = "gpu"
+STRATEGY = "auto"
+DEVICES = [0]
+PRECISION = 16
+
+EPOCHS = 100
+BATCH_SIZE = 64
+LR = 0.001
