@@ -1,0 +1,50 @@
+defaults:  
+  - _self_  
+  - override hydra/hydra_logging: disabled  
+  - override hydra/job_logging: disabled  
+  
+hydra:  
+  output_subdir: null  
+  run:  
+    dir: .
+
+hp:
+  epochs: 100
+  batch_size: 64
+  lr: 0.001
+
+data:
+  dir: "./cifar_10/.data"
+  num_classes: 10
+  num_workers: 8
+
+model:
+  _target_: torchvision.models.efficientnet_b0
+  num_classes: "${data.num_classes}"
+
+optimizer:
+  _target_: torch.optim.AdamW
+  _partial_: true
+  lr: "${hp.lr}"
+
+loss:
+  _target_: torch.nn.CrossEntropyLoss
+
+data_module:
+  _target_: lib.data.data_modules.cifar_10.Cifar10DataModule
+  data_save_dir: "${data.dir}"
+  num_workers: "${data.num_workers}"
+  batch_size: "${hp.batch_size}"
+
+nn_module:
+  _target_: cifar_10.nn_module.NNModule
+  num_classes: "${data.num_classes}"
+  model: "${model}"
+  loss: "${loss}"
+  optimizer_builder: "${optimizer}"
+
+trainer:
+  accelerator: "gpu"
+  strategy: "auto"
+  devices: [0]
+  precision: "16-mixed"
